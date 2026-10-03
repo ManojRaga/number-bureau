@@ -1,0 +1,5 @@
+const CACHE='number-bureau-v1';
+const ASSETS=['./','./index.html','./css/style.css','./css/bureau.css','./js/app.js','./js/dom.js','./js/content.js','./js/state.js','./js/math.js','./js/effects.js','./js/visuals.js','./js/puzzles.js','./js/labs.js','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png'];
+self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
+self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('number-bureau-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
+self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(e.request.method!=='GET'||u.origin!==self.location.origin||!u.href.startsWith(self.registration.scope))return;e.respondWith(caches.open(CACHE).then(async c=>{const cached=await c.match(e.request);if(cached)return cached;try{return await fetch(e.request);}catch{return e.request.mode==='navigate'?c.match('./index.html'):Response.error();}}));});
